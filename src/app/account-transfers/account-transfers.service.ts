@@ -84,6 +84,10 @@ export class AccountTransfersService {
     return this.http.post(`/accounttransfers`, data);
   }
 
+  deleteAccountTransfer(transferId: any): Observable<any> {
+    return this.http.delete(`/accounttransfers/${transferId}`);
+  }
+
   /**
    * @param clientId Client Id
    * @param clientName Client Name

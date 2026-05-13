@@ -10,11 +10,14 @@
 import { Location, NgIf, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { MatDivider } from '@angular/material/divider';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { FormatNumberPipe } from '../../pipes/format-number.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { DeleteDialogComponent } from 'app/shared/delete-dialog/delete-dialog.component';
+import { AccountTransfersService } from '../account-transfers.service';
 
 @Component({
   selector: 'mifosx-view-account-transfer',
@@ -33,6 +36,8 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 export class ViewAccountTransferComponent {
   private route = inject(ActivatedRoute);
   private location = inject(Location);
+  private dialog = inject(MatDialog);
+  private accountTransfersService = inject(AccountTransfersService);
 
   viewAccountTransferData: any;
   /**
@@ -56,6 +61,19 @@ export class ViewAccountTransferComponent {
 
   goBack(): void {
     this.location.back();
+  }
+
+  undoTransfer(): void {
+    const deleteTransferDialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: { deleteContext: `account transfer ${this.viewAccountTransferData.id}` }
+    });
+    deleteTransferDialogRef.afterClosed().subscribe((response: any) => {
+      if (response?.delete) {
+        this.accountTransfersService.deleteAccountTransfer(this.viewAccountTransferData.id).subscribe(() => {
+          this.goBack();
+        });
+      }
+    });
   }
 
   transactionColor(): string {
